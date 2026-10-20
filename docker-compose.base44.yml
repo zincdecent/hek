@@ -1,0 +1,30 @@
+# Base44 dev environment for this repo.
+#
+# The project is a dependency-free static site: two hand-written HTML pages
+# (index.html = player app, admin.html = admin dashboard) that talk to an
+# external Firebase project (Auth + Firestore) straight from the browser.
+# There is no backend, no build step and no package manager, so the sandbox
+# just needs to serve the working tree over HTTP on port 3000.
+#
+# The repo is bind-mounted, so whatever is on disk is what gets served and
+# edits appear on the next reload (no image rebuild needed).
+services:
+  web:
+    image: nginx:alpine
+    working_dir: /usr/share/nginx/html
+    ports:
+      - "3000:80"
+    volumes:
+      # Serve the cloned source straight from the working tree.
+      - ./:/usr/share/nginx/html:ro
+      # Main nginx config: needed because the sandbox home dir is mode 0700,
+      # which the stock unprivileged worker cannot read (see the file header).
+      # It also blocks dotfiles and disables caching for live edits.
+      - ./.base44/nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
