@@ -1,0 +1,12 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/api/health",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d --build",
+  "secrets": [
+    {
+      "name": "OPENAI_API_KEY",
+      "description": "OpenAI API key used for the AI-powered bot replies (platform.openai.com -> API keys). Optional: without it the agent still runs and answers from the knowledge base using keyword matching (demo mode). Adding the key switches every reply to the AI model configured in Bot Settings.",
+      "requiredAtBoot": false
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Bot Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/whatsapp/style.css">
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="brand">
+            <h1><i class="fab fa-whatsapp"></i> WhatsApp Agent</h1>
+            <p id="brand-sub">Automated chat bot</p>
+        </div>
+        <nav class="nav">
+            <button data-view="dashboard" class="active"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></button>
+            <button data-view="inbox"><i class="fas fa-inbox"></i> <span>Inbox</span></button>
+            <button data-view="knowledge"><i class="fas fa-book"></i> <span>Knowledge Base</span></button>
+            <button data-view="settings"><i class="fas fa-sliders-h"></i> <span>Bot Settings</span></button>
+            <button data-view="playground"><i class="fas fa-flask"></i> <span>Playground</span></button>
+        </nav>
+        <div class="sidebar-foot">
+            <a href="/simulator" target="_blank" rel="noreferrer"><i class="fas fa-mobile-alt"></i> Open chat simulator</a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h2 id="view-title">Dashboard</h2>
+                <div class="sub" id="view-sub">Bot activity at a glance</div>
+            </div>
+            <span class="badge muted" id="ai-badge"><i class="fas fa-circle-notch"></i> checking AI…</span>
+        </header>
+
+        <!-- Dashboard -->
+        <section class="view" id="view-dashboard">
+            <div class="stack">
+                <div class="grid cols-4" id="stats-grid"></div>
+                <div class="card">
+                    <h3>Messages — last 7 days</h3>
+                    <p class="hint">Incoming customer messages versus replies sent (bot and human).</p>
+                    <div class="chart-wrap"><canvas id="chart-canvas"></canvas></div>
+                </div>
+                <div class="card">
+                    <h3>Recent conversations</h3>
+                    <p class="hint">The latest chats handled by the agent.</p>
+                    <div id="recent-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inbox -->
+        <section class="view hidden" id="view-inbox">
+            <div class="inbox">
+                <div class="conv-list" id="conv-list"></div>
+                <div class="thread-panel">
+                    <div class="thread-head" id="thread-head">
+                        <div>
+                            <div class="who">No conversation selected</div>
+                            <div class="num">Pick a chat on the left</div>
+                        </div>
+                    </div>
+                    <div class="thread" id="thread"></div>
+                    <div class="composer">
+                        <textarea class="textarea" id="reply-input" placeholder="Reply as a human agent…"></textarea>
+                        <button class="btn btn-primary" id="reply-send"><i class="fas fa-paper-plane"></i> Send</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Knowledge base -->
+        <section class="view hidden" id="view-knowledge">
+            <div class="stack">
+                <div class="card">
+                    <h3 id="kb-form-title">Add a knowledge entry</h3>
+                    <p class="hint">The bot answers from these entries. Keep each one short and factual.</p>
+                    <div class="two-col">
+                        <div>
+                            <label class="field" for="kb-title">Title</label>
+                            <input class="input" id="kb-title" placeholder="Tournament schedule">
+                        </div>
+                        <div>
+                            <label class="field" for="kb-keywords">Keywords <span class="kw">(comma separated, helps the bot match)</span></label>
+                            <input class="input" id="kb-keywords" placeholder="schedule, time, saturday">
+                        </div>
+                    </div>
+                    <div style="margin-top:16px">
+                        <label class="field" for="kb-content">Answer</label>
+                        <textarea class="textarea" id="kb-content" placeholder="Weekly tournaments run every Saturday 6–9 PM at the City Sports Complex."></textarea>
+                    </div>
+                    <div class="row end" style="margin-top:16px">
+                        <button class="btn btn-ghost hidden" id="kb-cancel">Cancel edit</button>
+                        <button class="btn btn-primary" id="kb-submit"><i class="fas fa-plus"></i> Add entry</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Entries</h3>
+                    <div id="kb-table"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings -->
+        <section class="view hidden" id="view-settings">
+            <div class="stack">
+                <div class="card" id="settings-ai"></div>
+                <div class="card">
+                    <h3>Bot behaviour</h3>
+                    <p class="hint">These settings are used for every automated reply.</p>
+                    <div class="stack">
+                        <label class="switch"><input type="checkbox" id="set-enabled"> <span>Bot replies enabled</span></label>
+                        <div class="two-col">
+                            <div>
+                                <label class="field" for="set-bot-name">Bot name</label>
+                                <input class="input" id="set-bot-name">
+                            </div>
+                            <div>
+                                <label class="field" for="set-business">Business name</label>
+                                <input class="input" id="set-business">
+                            </div>
+                        </div>
+                        <div class="two-col">
+                            <div>
+                                <label class="field" for="set-model">AI model</label>
+                                <input class="input" id="set-model" placeholder="gpt-4o-mini">
+                            </div>
+                            <div>
+                                <label class="field" for="set-temperature">Creativity (0 – 2)</label>
+                                <input class="input" id="set-temperature" type="number" min="0" max="2" step="0.1">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="field" for="set-prompt">System prompt <span class="kw">— {bot_name} and {business_name} are filled in automatically</span></label>
+                            <textarea class="textarea" id="set-prompt" style="min-height:150px"></textarea>
+                        </div>
+                        <div>
+                            <label class="field" for="set-greeting">Greeting (first message of a new chat)</label>
+                            <textarea class="textarea" id="set-greeting" style="min-height:70px"></textarea>
+                        </div>
+                        <div>
+                            <label class="field" for="set-fallback">Fallback reply (when the bot has no answer)</label>
+                            <textarea class="textarea" id="set-fallback" style="min-height:70px"></textarea>
+                        </div>
+                        <div>
+                            <label class="field" for="set-handoff">Handoff message (when a human takes over)</label>
+                            <textarea class="textarea" id="set-handoff" style="min-height:70px"></textarea>
+                        </div>
+                        <div class="row end">
+                            <button class="btn btn-primary" id="settings-save"><i class="fas fa-save"></i> Save settings</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Playground -->
+        <section class="view hidden" id="view-playground">
+            <div class="card" style="max-width:760px">
+                <h3>Test the agent</h3>
+                <p class="hint">Messages here are stored in a “Playground test” conversation, so you can check replies without touching real chats.</p>
+                <div class="thread" id="pg-thread" style="min-height:340px;border-radius:10px"></div>
+                <div class="composer" style="padding:14px 0 0">
+                    <textarea class="textarea" id="pg-input" placeholder="Ask the bot something…"></textarea>
+                    <button class="btn btn-primary" id="pg-send"><i class="fas fa-paper-plane"></i> Send</button>
+                    <button class="btn btn-ghost" id="pg-reset" title="Clear this conversation"><i class="fas fa-rotate-left"></i></button>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+<div class="toast" id="toast"></div>
+<script src="/whatsapp/admin.js"></script>
+</body>
+</html>

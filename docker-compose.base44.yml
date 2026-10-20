@@ -1,0 +1,60 @@
+# Base44 dev environment for the hek repository.
+#
+# The repo itself is a plain static site (index.html / admin.html) with no build step.
+# This compose file adds the WhatsApp bot agent: an Express API that also serves the
+# static pages, plus a Postgres database. Everything runs from the cloned source with
+# a live-reload dev command, so edits show up without rebuilding any image.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: on-failure
+    environment:
+      POSTGRES_USER: bot
+      POSTGRES_PASSWORD: bot_local_dev
+      POSTGRES_DB: whatsapp_bot
+    volumes:
+      - bot_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bot -d whatsapp_bot"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  app:
+    image: node:22-alpine
+    working_dir: /app/server
+    # Dependencies live in a named volume, so they are installed on startup from the
+    # current lockfile instead of being baked into an image.
+    command:
+      - sh
+      - -ec
+      - npm install --no-audit --no-fund && exec npx nodemon --legacy-watch -e js,json --signal SIGTERM server.js
+    volumes:
+      - ./:/app
+      - bot_node_modules:/app/server/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=postgres://bot:bot_local_dev@db:5432/whatsapp_bot
+    # Platform-managed secrets (OPENAI_API_KEY). Later entries win, so dashboard
+    # values always override anything else.
+    env_file:
+      - /run/base44/app.env
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 45s
+    restart: on-failure
+
+volumes:
+  bot_db_data:
+  bot_node_modules:

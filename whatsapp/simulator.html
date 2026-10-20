@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Chat Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/whatsapp/style.css">
+</head>
+<body class="sim-body">
+<div>
+    <div class="phone">
+        <div class="phone-head">
+            <div class="avatar"><i class="fas fa-robot"></i></div>
+            <div>
+                <div class="who" id="sim-bot-name">Assistant</div>
+                <div class="status" id="sim-status">online · replies instantly</div>
+            </div>
+        </div>
+
+        <div class="sim-controls">
+            <span>You are</span>
+            <input id="sim-number" value="923001234567" placeholder="customer number" aria-label="Customer number">
+            <input id="sim-name" value="Ayesha Khan" placeholder="customer name" aria-label="Customer name">
+            <button id="sim-new"><i class="fas fa-rotate-left"></i> New chat</button>
+        </div>
+
+        <div class="sim-thread" id="sim-thread"></div>
+
+        <form class="sim-foot" id="sim-form">
+            <input id="sim-input" placeholder="Type a message" autocomplete="off" aria-label="Message">
+            <button type="submit" id="sim-send" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+        </form>
+    </div>
+
+    <p class="sim-help">
+        <span id="sim-mode"></span><br>
+        Every message here is stored, so you can watch the same chat in the
+        <a href="/bot" target="_blank" rel="noreferrer">bot console</a>.
+    </p>
+</div>
+<script src="/whatsapp/simulator.js"></script>
+</body>
+</html>
